@@ -27,15 +27,7 @@ paths:
           $ref: '#/components/responses/500-unavailable'
       operationId: create-transaction
   '/transactions/{id}/cancellation':
-
     post:
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: string
-          required: true
-          description: transaction id to apply operation
       requestBody:
         content:
           application/json:
@@ -44,6 +36,14 @@ paths:
         required: true
       tags:
         - transactions
+      parameters:
+        -
+          name: id
+          description: transaction id to apply operation
+          schema:
+            type: string
+          in: path
+          required: true
       responses:
         '201':
           $ref: '#/components/responses/201-success'
@@ -58,13 +58,6 @@ paths:
       operationId: request-cancellation
   '/transactions/{id}/reversal':
     post:
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: string
-          required: true
-          description: transaction id to apply operation
       requestBody:
         content:
           application/json:
@@ -73,6 +66,14 @@ paths:
         required: true
       tags:
         - transactions
+      parameters:
+        -
+          name: id
+          description: transaction id to apply operation
+          schema:
+            type: string
+          in: path
+          required: true
       responses:
         '201':
           $ref: '#/components/responses/201-success'
@@ -87,9 +88,38 @@ paths:
       operationId: request-reversal
 components:
   schemas:
+    id:
+      type: string
+      pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+      minLength: 36
+      maxLength: 36
+      example: 4cb0b69e-e4bd-46f6-b011-8cd5d2d3964b
+    currency_code:
+      type: string
+      minLength: 3
+      maxLength: 3
+      example: EUR
+      description: |
+        The currency code from ISO 4217 find more at https://en.wikipedia.org/wiki/ISO_4217
+    country_code:
+      type: string
+      description: |
+        The country code from ISO 3166 find more at https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
+      minLength: 3
+      maxLength: 3
+      example: ARG
     request-transaction:
-      title: Root Type for request-transaction
+      title: request-transaction
       description: ''
+      required:
+        - transaction_data
+        - authorization_code
+        - acquirer_code
+        - merchant_code
+        - currency_code
+        - country_code
+        - product_id
+        - pos_id
       type: object
       properties:
         authorization_code:
@@ -99,38 +129,38 @@ components:
         merchant_code:
           type: string
         currency_code:
-          type: string
+          $ref: '#/components/schemas/currency_code'
         transaction_data:
-          type: object
-          properties:
-            with_password:
-              type: boolean
-            transaction_type:
-              type: string
-            amount:
-              format: int32
-              type: integer
+          $ref: '#/components/schemas/transaction-data-request'
         country_code:
-          type: string
+          $ref: '#/components/schemas/country_code'
         product_id:
-          type: string
+          $ref: '#/components/schemas/id'
         pos_id:
-          type: string
+          $ref: '#/components/schemas/id'
       example:
         authorization_code: b7679972-0c02-11ed-870e-0bd9fad36067
         acquirer_code: b7679a80-0c02-11ed-870f-7369662850ea
         merchant_code: b7679aa8-0c02-11ed-8710-13a200d59031
-        currency_code: b7679b02-0c02-11ed-8713-0f4e1eec6501
+        currency_code: EUR
         transaction_data:
           with_password: true
-          transaction_type: credit
+          operation: credit
           amount: 231
         country_code: BRA
         product_id: b7679b5c-0c02-11ed-8716-0b78014761cd
         pos_id: a225ed74-0c03-11ed-ae01-630c1a4b2fbc
     request-reversal:
-      title: Root Type for request-reversal
+      title: request-reversal
       description: ''
+      required:
+        - transaction_data
+        - authorization_code
+        - acquirer_code
+        - country_code
+        - currency_code
+        - product_id
+        - pos_id
       type: object
       properties:
         authorization_code:
@@ -140,34 +170,37 @@ components:
         merchant_code:
           type: string
         currency_code:
-          type: string
+          $ref: '#/components/schemas/currency_code'
         transaction_data:
-          type: object
-          properties:
-            transaction_type:
-              type: string
-            transaction_id:
-              type: string
+          $ref: '#/components/schemas/transaction-data-request'
         country_code:
-          type: string
+          $ref: '#/components/schemas/country_code'
         product_id:
-          type: string
+          $ref: '#/components/schemas/id'
         pos_id:
-          type: string
+          $ref: '#/components/schemas/id'
       example:
         authorization_code: b7679972-0c02-11ed-870e-0bd9fad36067
         acquirer_code: b7679a80-0c02-11ed-870f-7369662850ea
         merchant_code: b7679aa8-0c02-11ed-8710-13a200d59031
-        currency_code: b7679b02-0c02-11ed-8713-0f4e1eec6501
+        currency_code: EUR
         transaction_data:
-          transaction_type: reversal
           transaction_id: a225edb0-0c03-11ed-ae03-c3d8f097c2ff
         country_code: BRA
         product_id: b7679b5c-0c02-11ed-8716-0b78014761cd
         pos_id: a225ed74-0c03-11ed-ae01-630c1a4b2fbc
     request-cancellation:
-      title: Root Type for request-cancellation
+      title: request-cancellation
       description: ''
+      required:
+        - transaction_data
+        - authorization_code
+        - acquirer_code
+        - merchant_code
+        - currency_code
+        - country_code
+        - product_id
+        - pos_id
       type: object
       properties:
         authorization_code:
@@ -177,33 +210,27 @@ components:
         merchant_code:
           type: string
         currency_code:
-          type: string
+          $ref: '#/components/schemas/currency_code'
         transaction_data:
-          type: object
-          properties:
-            transaction_type:
-              type: string
-            transaction_id:
-              type: string
+          $ref: '#/components/schemas/transaction-data-request'
         country_code:
-          type: string
+          $ref: '#/components/schemas/country_code'
         product_id:
-          type: string
+          $ref: '#/components/schemas/id'
         pos_id:
-          type: string
+          $ref: '#/components/schemas/id'
       example:
         authorization_code: b7679972-0c02-11ed-870e-0bd9fad36067
         acquirer_code: b7679a80-0c02-11ed-870f-7369662850ea
         merchant_code: b7679aa8-0c02-11ed-8710-13a200d59031
-        currency_code: b7679b02-0c02-11ed-8713-0f4e1eec6501
+        currency_code: EUR
         transaction_data:
-          transaction_type: cancellation
           transaction_id: a225edb0-0c03-11ed-ae03-c3d8f097c2ff
         country_code: BRA
         product_id: b7679b5c-0c02-11ed-8716-0b78014761cd
         pos_id: a225ed74-0c03-11ed-ae01-630c1a4b2fbc
     response-transactions:
-      title: Root Type for response-transactions
+      title: response-transactions
       description: ''
       type: object
       properties:
@@ -216,7 +243,7 @@ components:
         transaction_id: a200609c-0c06-11ed-9205-73f6505a2b35
         registered_at: '2022-07-25T10:44:18+0000'
     generic-error:
-      title: Root Type for generic-error
+      title: generic-error
       description: ''
       type: object
       properties:
@@ -227,6 +254,27 @@ components:
       example:
         code: '001'
         description: error message
+    transaction-data-request:
+      title: transaction-data-request
+      description: ''
+      type: object
+      properties:
+        with_password:
+          type: boolean
+        operation:
+          type: string
+          enum:
+            - credit
+            - debit
+        amount:
+          type: number
+        transaction_id:
+          $ref: '#/components/schemas/id'
+      example:
+        with_password: true
+        operation: credit
+        amount: 231
+        transaction_id: 172539e4-14aa-4030-921f-cefa228a37ed
   responses:
     201-success:
       content:
