@@ -10,13 +10,20 @@ type TransactionHttpAdapter struct {
 	service *service.TransactionService
 }
 
+func NewTransactionHttpAdapter(service *service.TransactionService) *TransactionHttpAdapter {
+	return &TransactionHttpAdapter{service: service}
+}
+
 func (tha *TransactionHttpAdapter) CreateTransaction(ctx echo.Context) error {
-	ct := &api.CreateTransactionJSONBody{}
+	ct := &api.RequestTransaction{}
 	if err := ctx.Bind(ct); err != nil {
 		return err
 	}
-
-	return nil
+	tid, err := tha.service.Confirmation(ct)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(201, tid)
 }
 
 func (tha *TransactionHttpAdapter) RequestCancellation(ctx echo.Context, id string) error {
