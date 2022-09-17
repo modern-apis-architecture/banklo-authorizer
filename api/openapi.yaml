@@ -258,6 +258,11 @@ components:
       title: transaction-data-request
       description: ''
       type: object
+      required:
+        - operation
+        - amount
+        - transaction_id
+        - card_id
       properties:
         with_password:
           type: boolean
@@ -270,11 +275,14 @@ components:
           type: number
         transaction_id:
           $ref: '#/components/schemas/id'
+        card_id:
+          $ref: '#/components/schemas/id'
       example:
         with_password: true
         operation: credit
         amount: 231
         transaction_id: 172539e4-14aa-4030-921f-cefa228a37ed
+        card_id : 172539e4-14aa-4030-921f-cefa228a37df
   responses:
     201-success:
       content:
