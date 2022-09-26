@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "banklo-authorizer.fullname" . }}
+data:
+  MONGO_DSN: "mongodb://mongodb.database:27017"
+  CARD_SERVICE_URL: "http://banklo-cards-issuer.cards.svc.cluster.local"
+  EXTERNAL_AUTHORIZATION_URL: "http://banklo-authorizer-adapter.payments.svc.cluster.local"

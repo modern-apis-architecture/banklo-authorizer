@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/api"
+	"net/http"
 	"os"
 )
 
@@ -30,8 +31,12 @@ func main() {
 
 	// We now register our petStore above as the handler for the interface
 	api.RegisterHandlers(e, container)
-
+	e.GET("/health", health)
 	// And we serve HTTP until the world ends.
 	e.Logger.Fatal(e.Start(fmt.Sprintf("0.0.0.0:%d", *port)))
 
+}
+
+func health(c echo.Context) error {
+	return c.String(http.StatusOK, "UP")
 }
