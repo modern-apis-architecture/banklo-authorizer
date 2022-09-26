@@ -12,6 +12,7 @@ type RequestTransaction struct {
 	MerchantCode    string `json:"merchant_code,omitempty"`
 	TransactionData *struct {
 		Amount          *float32 `json:"amount,omitempty"`
+		TransactionId   *string  `json:"transaction_id,omitempty"`
 		TransactionType *string  `json:"transaction_type,omitempty"`
 		WithPassword    *bool    `json:"with_password,omitempty"`
 	} `json:"transaction_data,omitempty"`

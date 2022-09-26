@@ -12,7 +12,7 @@ import (
 func main() {
 	container, err := BuildAppContainer()
 
-	var port = flag.Int("port", 8080, "Port for test HTTP server")
+	var port = flag.Int("port", 6666, "Port for test HTTP server")
 	flag.Parse()
 
 	swagger, err := api.GetSwagger()
@@ -24,8 +24,6 @@ func main() {
 	// Clear out the servers array in the swagger spec, that skips validating
 	// that server names match. We don't know how this thing will be run.
 	swagger.Servers = nil
-
-	// This is how you set up a basic Echo router
 	e := echo.New()
 	// Log all requests
 	e.Use(echomiddleware.Logger())

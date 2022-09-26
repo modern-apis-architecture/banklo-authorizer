@@ -11,11 +11,11 @@ import (
 
 type CardService struct {
 	hcli *http.Client
-	cfg  *config.CardService
+	cfg  *config.Config
 }
 
 func (cs *CardService) CardById(cid string) (*domain.Card, error) {
-	req, err := http.NewRequest(http.MethodGet, cs.cfg.Url+"/cards/"+cid, nil)
+	req, err := http.NewRequest(http.MethodGet, cs.cfg.CardService.Url+"/cards/"+cid, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -36,4 +36,11 @@ func (cs *CardService) CardById(cid string) (*domain.Card, error) {
 		return nil, err
 	}
 	return c, nil
+}
+
+func NewCardService(hcli *http.Client, cfg *config.Config) *CardService {
+	return &CardService{
+		hcli: hcli,
+		cfg:  cfg,
+	}
 }

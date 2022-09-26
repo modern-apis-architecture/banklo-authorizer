@@ -7,6 +7,7 @@
 package main
 
 import (
+	"github.com/modern-apis-architecture/banklo-authorizer/internal/config"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/domain/adapter"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/domain/service"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/storage/http"
@@ -22,9 +23,11 @@ func BuildAppContainer() (*adapter.TransactionHttpAdapter, error) {
 	}
 	mongoTransactionRepository := mongo.NewMongoTransactionRepository(collection)
 	client := http.NewHttpClient()
-	httpExternalAuthorization := http.NewHttpExternalAuthorization(client)
+	configConfig := config.ProvideConfig()
+	httpExternalAuthorization := http.NewHttpExternalAuthorization(client, configConfig)
 	externalAuthorization := service.NewExternalAuthorization(httpExternalAuthorization)
-	transactionService := service.NewTransactionService(mongoTransactionRepository, externalAuthorization)
+	cardService := service.NewCardService(client, configConfig)
+	transactionService := service.NewTransactionService(mongoTransactionRepository, externalAuthorization, cardService)
 	transactionHttpAdapter := adapter.NewTransactionHttpAdapter(transactionService)
 	return transactionHttpAdapter, nil
 }

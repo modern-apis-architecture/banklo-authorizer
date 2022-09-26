@@ -33,6 +33,7 @@ func (ts *TransactionService) Confirmation(t *api.RequestTransaction) (*domain.T
 		Type:              string(t.TransactionData.Operation),
 		Amount:            t.TransactionData.Amount,
 		CardId:            card.Id,
+		Id:                t.TransactionData.TransactionId,
 	}
 	exTid, err := ts.ext.Authorize(dt)
 	if err != nil {

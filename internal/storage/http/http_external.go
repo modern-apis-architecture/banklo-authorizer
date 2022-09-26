@@ -15,15 +15,29 @@ var ErrorDeclined = errors.New("transaction declined")
 
 type HttpExternalAuthorization struct {
 	cli *http.Client
-	cfg *config.ExternalAuthorization
+	cfg *config.Config
 }
 
-func NewHttpExternalAuthorization(cli *http.Client, cfg *config.ExternalAuthorization) *HttpExternalAuthorization {
+func NewHttpExternalAuthorization(cli *http.Client, cfg *config.Config) *HttpExternalAuthorization {
 	return &HttpExternalAuthorization{cli: cli, cfg: cfg}
 }
 
 func (hea *HttpExternalAuthorization) Authorize(t *domain.Transaction) (*domain.ExternalTransactionResponse, error) {
-	req, _ := hea.createRequest("/transactions", t)
+	et := &ExternalRequestTransaction{
+		AcquirerCode:      t.AcquirerCode,
+		AuthorizationCode: t.AuthorizationCode,
+		CountryCode:       t.CountryCode,
+		CurrencyCode:      t.CurrencyCode,
+		MerchantCode:      t.MerchantCode,
+		ExternalTransactionData: ExternalTransactionData{
+			Amount:          t.Amount,
+			CardId:          t.CardId,
+			TransactionId:   t.Id,
+			TransactionType: t.Type,
+			WithPassword:    false,
+		},
+	}
+	req, _ := hea.createRequest("/transactions", et)
 	resp, err := hea.cli.Do(req)
 	defer func(Body io.ReadCloser) {
 		_ = Body.Close()
@@ -98,7 +112,12 @@ func (hea *HttpExternalAuthorization) Reversal(t *domain.Transaction) (*domain.E
 	return etr, nil
 }
 
-func (hea *HttpExternalAuthorization) createRequest(path string, t *domain.Transaction) (*http.Request, error) {
+func (hea *HttpExternalAuthorization) createRequest(path string, t interface{}) (*http.Request, error) {
 	body, _ := json.Marshal(t)
-	return http.NewRequest(http.MethodPost, hea.cfg.Url+path, bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, hea.cfg.ExternalAuthorization.Url+path, bytes.NewBuffer(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	return req, nil
 }

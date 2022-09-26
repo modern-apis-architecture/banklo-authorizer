@@ -147,6 +147,8 @@ components:
           with_password: true
           operation: credit
           amount: 231
+          transaction_id: a225edb0-0c03-11ed-ae03-c3d8f097c2ff
+          card_id: faaeca61-3300-11ed-a86f-d45d64b317ef
         country_code: BRA
         product_id: b7679b5c-0c02-11ed-8716-0b78014761cd
         pos_id: a225ed74-0c03-11ed-ae01-630c1a4b2fbc
