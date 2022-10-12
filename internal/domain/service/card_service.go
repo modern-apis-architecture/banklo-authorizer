@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/config"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/domain"
@@ -14,8 +15,10 @@ type CardService struct {
 	cfg  *config.Config
 }
 
-func (cs *CardService) CardById(cid string) (*domain.Card, error) {
+func (cs *CardService) CardById(ctx context.Context, cid string) (*domain.Card, error) {
 	req, err := http.NewRequest(http.MethodGet, cs.cfg.CardService.Url+"/cards/"+cid, nil)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", ctx.Value("external-auth").(string))
 	if err != nil {
 		return nil, err
 	}

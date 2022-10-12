@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/api"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/domain"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/domain/repository"
@@ -16,8 +17,8 @@ func NewTransactionService(repo repository.TransactionRepository, ext *ExternalA
 	return &TransactionService{repo: repo, ext: ext, cs: cs}
 }
 
-func (ts *TransactionService) Confirmation(t *api.RequestTransaction) (*domain.TransactionId, error) {
-	card, err := ts.cs.CardById(t.TransactionData.CardId)
+func (ts *TransactionService) Confirmation(ctx context.Context, t *api.RequestTransaction) (*domain.TransactionId, error) {
+	card, err := ts.cs.CardById(ctx,t.TransactionData.CardId)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +36,7 @@ func (ts *TransactionService) Confirmation(t *api.RequestTransaction) (*domain.T
 		CardId:            card.Id,
 		Id:                t.TransactionData.TransactionId,
 	}
-	exTid, err := ts.ext.Authorize(dt)
+	exTid, err := ts.ext.Authorize(ctx,dt)
 	if err != nil {
 		return nil, err
 	}
@@ -47,8 +48,8 @@ func (ts *TransactionService) Confirmation(t *api.RequestTransaction) (*domain.T
 	return tid, nil
 }
 
-func (ts *TransactionService) Reversal(t *api.RequestTransaction) (*domain.TransactionId, error) {
-	card, err := ts.cs.CardById(t.TransactionData.CardId)
+func (ts *TransactionService) Reversal(ctx context.Context,t *api.RequestTransaction) (*domain.TransactionId, error) {
+	card, err := ts.cs.CardById(nil, t.TransactionData.CardId)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +66,7 @@ func (ts *TransactionService) Reversal(t *api.RequestTransaction) (*domain.Trans
 		Amount:            t.TransactionData.Amount,
 		CardId:            card.Id,
 	}
-	exTid, err := ts.ext.Reversal(dt)
+	exTid, err := ts.ext.Reversal(ctx,dt)
 	if err != nil {
 		return nil, err
 	}
@@ -77,8 +78,8 @@ func (ts *TransactionService) Reversal(t *api.RequestTransaction) (*domain.Trans
 	return tid, nil
 }
 
-func (ts *TransactionService) Cancellation(t *api.RequestCancellation) (*domain.TransactionId, error) {
-	card, err := ts.cs.CardById(t.TransactionData.CardId)
+func (ts *TransactionService) Cancellation(ctx context.Context,t *api.RequestCancellation) (*domain.TransactionId, error) {
+	card, err := ts.cs.CardById(nil, t.TransactionData.CardId)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +96,7 @@ func (ts *TransactionService) Cancellation(t *api.RequestCancellation) (*domain.
 		Amount:            t.TransactionData.Amount,
 		CardId:            card.Id,
 	}
-	exTid, err := ts.ext.Cancellation(dt)
+	exTid, err := ts.ext.Cancellation(ctx,dt)
 	if err != nil {
 		return nil, err
 	}

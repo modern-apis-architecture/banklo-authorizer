@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"context"
 	"github.com/labstack/echo/v4"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/api"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/domain/service"
@@ -19,7 +20,8 @@ func (tha *TransactionHttpAdapter) CreateTransaction(ctx echo.Context) error {
 	if err := ctx.Bind(ct); err != nil {
 		return err
 	}
-	tid, err := tha.service.Confirmation(ct)
+	nc := context.WithValue(ctx.Request().Context(),"external-auth",ctx.Request().Header["Authorization"][0])
+	tid, err := tha.service.Confirmation(nc,ct)
 	if err != nil {
 		return err
 	}
@@ -33,3 +35,8 @@ func (tha *TransactionHttpAdapter) RequestCancellation(ctx echo.Context, id stri
 func (tha *TransactionHttpAdapter) RequestReversal(ctx echo.Context, id string) error {
 	return nil
 }
+
+
+
+
+
