@@ -7,6 +7,7 @@ import (
 	"errors"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/config"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/domain"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -38,15 +39,17 @@ func (hea *HttpExternalAuthorization) Authorize(ctx context.Context, t *domain.T
 			WithPassword:    false,
 		},
 	}
-	req, _ := hea.createRequest(ctx,"/transactions", et)
+	req, _ := hea.createRequest(ctx, "/transactions", et)
 	resp, err := hea.cli.Do(req)
 	defer func(Body io.ReadCloser) {
 		_ = Body.Close()
 	}(resp.Body)
 	if err != nil {
+		log.Errorf(" register transaction error %v", err)
 		return nil, err
 	}
 	if resp.StatusCode != 201 {
+		log.Errorf(" register transaction status code %v", resp.StatusCode)
 		return nil, ErrorDeclined
 	}
 	body, readErr := ioutil.ReadAll(resp.Body)
@@ -56,13 +59,14 @@ func (hea *HttpExternalAuthorization) Authorize(ctx context.Context, t *domain.T
 	etr := &domain.ExternalTransactionResponse{}
 	jsonErr := json.Unmarshal(body, etr)
 	if jsonErr != nil {
+		log.Errorf(" error to decode register transaction  %v", jsonErr)
 		return nil, err
 	}
 	return etr, nil
 }
 
 func (hea *HttpExternalAuthorization) Cancellation(ctx context.Context, t *domain.Transaction) (*domain.ExternalTransactionResponse, error) {
-	req, _ := hea.createRequest(ctx,"/transactions"+t.Id+"/cancellation", t)
+	req, _ := hea.createRequest(ctx, "/transactions"+t.Id+"/cancellation", t)
 	resp, err := hea.cli.Do(req)
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -88,7 +92,7 @@ func (hea *HttpExternalAuthorization) Cancellation(ctx context.Context, t *domai
 }
 
 func (hea *HttpExternalAuthorization) Reversal(ctx context.Context, t *domain.Transaction) (*domain.ExternalTransactionResponse, error) {
-	req, _ := hea.createRequest(ctx,"/transactions"+t.Id+"/reversal", t)
+	req, _ := hea.createRequest(ctx, "/transactions"+t.Id+"/reversal", t)
 	resp, err := hea.cli.Do(req)
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -113,8 +117,9 @@ func (hea *HttpExternalAuthorization) Reversal(ctx context.Context, t *domain.Tr
 	return etr, nil
 }
 
-func (hea *HttpExternalAuthorization) createRequest(ctx context.Context,path string, t interface{}) (*http.Request, error) {
+func (hea *HttpExternalAuthorization) createRequest(ctx context.Context, path string, t interface{}) (*http.Request, error) {
 	body, _ := json.Marshal(t)
+	log.Info(string(body))
 	req, err := http.NewRequest(http.MethodPost, hea.cfg.ExternalAuthorization.Url+path, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err

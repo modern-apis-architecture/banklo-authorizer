@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/api"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/domain/service"
+	log "github.com/sirupsen/logrus"
 )
 
 type TransactionHttpAdapter struct {
@@ -18,10 +19,11 @@ func NewTransactionHttpAdapter(service *service.TransactionService) *Transaction
 func (tha *TransactionHttpAdapter) CreateTransaction(ctx echo.Context) error {
 	ct := &api.RequestTransaction{}
 	if err := ctx.Bind(ct); err != nil {
+		log.Errorf("invalid payload %v", err)
 		return err
 	}
-	nc := context.WithValue(ctx.Request().Context(),"external-auth",ctx.Request().Header["Authorization"][0])
-	tid, err := tha.service.Confirmation(nc,ct)
+	nc := context.WithValue(ctx.Request().Context(), "external-auth", ctx.Request().Header["Authorization"][0])
+	tid, err := tha.service.Confirmation(nc, ct)
 	if err != nil {
 		return err
 	}
@@ -35,8 +37,3 @@ func (tha *TransactionHttpAdapter) RequestCancellation(ctx echo.Context, id stri
 func (tha *TransactionHttpAdapter) RequestReversal(ctx echo.Context, id string) error {
 	return nil
 }
-
-
-
-
-

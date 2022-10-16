@@ -7,6 +7,7 @@ require (
 	github.com/getkin/kin-openapi v0.97.0
 	github.com/google/wire v0.5.0
 	github.com/labstack/echo/v4 v4.7.2
+	github.com/sirupsen/logrus v1.9.0
 	go.mongodb.org/mongo-driver v1.10.0
 )
 
@@ -34,7 +35,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/net v0.0.0-20220513224357-95641704303c // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220513210249-45d2b4557a2a // indirect
+	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/config"
 	"github.com/modern-apis-architecture/banklo-authorizer/internal/domain"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -33,6 +34,7 @@ func (cs *CardService) CardById(ctx context.Context, cid string) (*domain.Card, 
 	if readErr != nil {
 		return nil, readErr
 	}
+	log.Infof("card data %s", string(body))
 	c := &domain.Card{}
 	jsonErr := json.Unmarshal(body, c)
 	if jsonErr != nil {
