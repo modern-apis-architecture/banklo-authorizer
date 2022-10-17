@@ -4,6 +4,14 @@ metadata:
   name: {{ include "banklo-authorizer.fullname" . }}
 spec:
   host: {{ include "banklo-authorizer.fullname" . }}
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 4000ms
+      http:
+        http1MaxPendingRequests: 10
+        maxRequestsPerConnection: 100
   subsets:
     - name: v1
       labels:
